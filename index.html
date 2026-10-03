@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI智营宝 V4.0 - 智能饮食与营养管理系统</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">AI</div>
+        <div>
+          <strong>AI智营宝 V4.0</strong>
+          <span>智能饮食与营养管理系统</span>
+        </div>
+      </div>
+      <nav class="nav-list">
+        <a href="#dashboard" class="active">今日总览</a>
+        <a href="#profile">身体与目标</a>
+        <a href="#recognition">AI图片识别</a>
+        <a href="#recommendation">个性化建议</a>
+      </nav>
+      <div class="wearable-card">
+        <span class="status-dot"></span>
+        <div>
+          <strong>健康数据已同步</strong>
+          <small>步数、睡眠与饮食目标</small>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <section class="topbar" id="dashboard">
+        <div>
+          <p class="eyebrow">PERSONAL NUTRITION INTELLIGENCE</p>
+          <h1>今日动态饮食方案</h1>
+          <p class="subtitle">根据个人状态与本餐营养结果动态更新建议。</p>
+        </div>
+        <button class="icon-button" id="refreshPlan" title="更新健康建议">更新建议</button>
+      </section>
+
+      <section class="hero-panel">
+        <div class="hero-copy">
+          <div class="quick-stats">
+            <div><strong id="scoreValue">86</strong><span>健康评分</span></div>
+            <div><strong id="calorieValue">1780</strong><span>建议热量</span></div>
+            <div><strong id="proteinValue">78g</strong><span>蛋白目标</span></div>
+          </div>
+        </div>
+        <div class="plate-visual">
+          <canvas id="plateCanvas" width="280" height="280"></canvas>
+        </div>
+      </section>
+
+      <section class="grid-layout">
+        <article class="panel input-panel" id="profile">
+          <div class="panel-heading">
+            <h2>身体与目标</h2>
+            <span id="riskTag">状态良好</span>
+          </div>
+          <form id="profileForm">
+            <label>
+              目标
+              <select id="goal">
+                <option value="balance">均衡维持</option>
+                <option value="fatLoss">控糖减脂</option>
+                <option value="muscle">增肌恢复</option>
+                <option value="heart">心血管友好</option>
+              </select>
+            </label>
+            <label>
+              年龄
+              <input id="age" type="number" min="8" max="90" value="12" />
+            </label>
+            <label>
+              睡眠时长
+              <input id="sleep" type="range" min="3" max="10" step="0.5" value="8" />
+              <output id="sleepOutput">8 小时</output>
+            </label>
+            <label>
+              今日步数
+              <input id="steps" type="number" min="0" max="50000" step="500" value="8000" />
+            </label>
+            <fieldset>
+              <legend>饮食偏好/限制</legend>
+              <label class="check"><input type="checkbox" value="lactose" /> 乳糖不耐</label>
+              <label class="check"><input type="checkbox" value="lowSalt" /> 低盐</label>
+              <label class="check"><input type="checkbox" value="vegetarian" /> 素食优先</label>
+            </fieldset>
+          </form>
+        </article>
+
+        <article class="panel food-panel" id="recognition">
+          <div class="panel-heading">
+            <h2>AI图片识别</h2>
+            <span>食材 + 营养估算</span>
+          </div>
+
+          <div class="food-stage">
+            <div class="food-image" id="foodImage" role="img" aria-label="已上传餐食图片"></div>
+
+            <div class="recognition-loading" id="recognitionLoading" hidden>
+              <span class="loading-spinner"></span>
+              <strong>正在分析图片</strong>
+              <small>正在压缩并分析照片，请稍候…</small>
+            </div>
+
+            <div class="nutrition-card">
+              <strong id="foodName">请选择图片识别</strong>
+              <span id="foodMacro">识别后显示餐食类别与营养估算</span>
+            </div>
+          </div>
+
+          <div class="scan-actions">
+            <label class="file-button" for="foodCamera">拍照识别</label>
+            <input id="foodCamera" type="file" accept="image/*" capture="environment" hidden />
+
+            <label class="file-button secondary" for="foodUpload">上传照片</label>
+            <input id="foodUpload" type="file" accept="image/*" hidden />
+
+            <button id="retryRecognition" type="button">重新识别</button>
+          </div>
+
+          <p class="recognition-status" id="recognitionStatus">请选择一张餐食照片。</p>
+
+          <div class="result-grid">
+            <div class="result-card">
+              <h3>识别食材</h3>
+              <ul id="ingredientsList"><li>等待识别</li></ul>
+            </div>
+
+            <div class="result-card">
+              <h3>AI Top-5 参考</h3>
+              <ol id="top5Prediction"><li>等待识别</li></ol>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel recommendation-panel" id="recommendation">
+          <div class="panel-heading">
+            <h2>个性化营养建议</h2>
+            <span id="updatedAt">刚刚更新</span>
+          </div>
+          <ul class="recommendations" id="recommendations"></ul>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="./top5_translate.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

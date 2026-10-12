@@ -33,48 +33,74 @@
     const n = meal.nutrition || {};
     const category = meal.foodCategory || "";
 
-    let breakfastTitle = "均衡早餐，给一天开个好头";
-    let breakfastText = "选择鸡蛋或牛奶等蛋白质食物，搭配全麦主食和水果。";
-    let lunchTitle = "主食、蛋白质和蔬菜都要有";
-    let lunchText = "午餐尽量做到有主食、有优质蛋白，也有足够蔬菜。";
-    let dinnerTitle = "晚餐清淡一些，更容易保持平衡";
-    let dinnerText = "少吃油炸和重口味食物，保留适量主食和优质蛋白。";
+    // 先根据健康目标生成三餐基础方案
+    let breakfastTitle, breakfastText, lunchTitle, lunchText, dinnerTitle, dinnerText;
 
-    // 根据健康目标调整
     if (p.goal === "loss") {
-      breakfastTitle = "控糖减脂：早餐也要吃够";
-      breakfastText = "优先选择鸡蛋、无糖奶或豆浆，主食适量，少选高糖饮料和甜点。";
-      lunchTitle = "控糖减脂：先保证蛋白质和蔬菜";
-      lunchText = "减少油炸和精制主食，增加蔬菜、鱼虾、禽肉或豆制品。";
-      dinnerTitle = "控糖减脂：晚餐不过量";
-      dinnerText = "晚餐减少高脂和高糖食物，主食适量，多搭配蔬菜。";
+      breakfastTitle = "早餐：控糖但要吃够";
+      breakfastText = "优先选择鸡蛋、无糖奶或豆浆，搭配适量全麦主食和水果。";
+
+      lunchTitle = "午餐：多蔬菜，主食适量";
+      lunchText = "建议一份优质蛋白、两份蔬菜和适量主食，少选油炸和浓酱。";
+
+      dinnerTitle = "晚餐：清淡不过量";
+      dinnerText = "减少高脂、高糖食物，适量主食，增加蔬菜和优质蛋白。";
+
     } else if (p.goal === "gain") {
-      breakfastTitle = "增肌塑形：早餐补足蛋白";
-      breakfastText = "早餐可增加鸡蛋、牛奶、酸奶或豆制品，并搭配主食补充能量。";
-      lunchTitle = "增肌塑形：午餐保证蛋白质";
+      breakfastTitle = "早餐：补充蛋白和能量";
+      breakfastText = "增加鸡蛋、牛奶、酸奶或豆制品，并搭配主食补充能量。";
+
+      lunchTitle = "午餐：保证优质蛋白";
       lunchText = "选择鱼、虾、鸡肉、牛肉或豆制品，搭配主食和蔬菜。";
-      dinnerTitle = "增肌塑形：运动后注意恢复";
+
+      dinnerTitle = "晚餐：帮助运动后恢复";
       dinnerText = "运动后适量补充蛋白质和碳水，避免只吃肉不吃主食。";
+
+    } else {
+      breakfastTitle = "早餐：均衡开启一天";
+      breakfastText = "选择蛋类或奶类，搭配全麦主食和水果。";
+
+      lunchTitle = "午餐：主食、蛋白和蔬菜都要有";
+      lunchText = "搭配鱼虾、禽肉或豆制品，并保证足够蔬菜。";
+
+      dinnerTitle = "晚餐：清淡但不节食";
+      dinnerText = "减少重油酱汁，保留适量主食和优质蛋白。";
     }
 
-    // 根据活动水平调整
-    if (p.activity >= 1.55) {
-      breakfastText += " 今天活动量较大，可以适当增加主食。";
-    } else if (p.activity <= 1.2) {
-      dinnerText += " 今天活动量较少，注意控制额外零食和含糖饮料。";
+    // 再根据今日步数，让三餐都发生明显变化
+    if (p.steps < 5000) {
+      breakfastText += " 今天步数较少，早餐主食不需要过量。";
+      lunchTitle = "午餐：轻一点，多走一点";
+      lunchText = "今天活动量偏少，午餐可减少油炸和大份主食，多吃蔬菜。";
+      dinnerTitle = "晚餐：少油少糖，饭后走一走";
+      dinnerText = "今天步数较少，晚餐建议清淡一些，饭后可以散步增加活动量。";
+
+    } else if (p.steps < 8000) {
+      breakfastText += " 今天活动量一般，保持规律饮食即可。";
+      lunchTitle = "午餐：均衡搭配最重要";
+      lunchText = "今天活动量中等，午餐保持主食、蛋白质和蔬菜的均衡搭配。";
+      dinnerTitle = "晚餐：适量主食，避免过饱";
+      dinnerText = "活动量一般，晚餐吃到七八分饱即可。";
+
+    } else if (p.steps < 12000) {
+      breakfastText += " 今天步数不错，可以正常补充主食。";
+      lunchTitle = "午餐：活动量不错，注意补充能量";
+      lunchText = "今天步数较多，午餐可保证足够主食和优质蛋白，继续保持。";
+      dinnerTitle = "晚餐：补充蛋白，保持清淡";
+      dinnerText = "今天活动量较好，晚餐可适量补充蛋白质，同时保持蔬菜摄入。";
+
+    } else {
+      breakfastTitle = "早餐：高活动量需要足够能量";
+      breakfastText = "今天步数很多，早餐可适当增加主食和蛋白质，并注意补水。";
+
+      lunchTitle = "午餐：高活动量，主食和蛋白都要够";
+      lunchText = "今天活动量较大，午餐可适当增加主食、鱼虾、肉类或豆制品。";
+
+      dinnerTitle = "晚餐：帮助恢复，别忘了补水";
+      dinnerText = "高活动量后可适量补充蛋白质和碳水，同时注意水分和蔬菜。";
     }
 
-    // 根据今天实际步数进一步调整
-    if (p.steps >= 12000) {
-      breakfastText += " 今天步数较多，注意补充水分和适量能量。";
-      lunchText += " 活动量较大时，午餐可保证足够主食和优质蛋白。";
-    } else if (p.steps >= 8000) {
-      lunchText += " 今天步数不错，继续保持日常活动。";
-    } else if (p.steps < 5000) {
-      dinnerText += " 今天步数较少，可以增加散步等轻度活动。";
-    }
-
-    // 根据识别到的这餐营养动态调整
+    // 最后根据本餐识别结果覆盖最相关的下一餐建议
     const protein = Number(n.protein) || 0;
     const carbs = Number(n.carbs) || 0;
     const fat = Number(n.fat) || 0;
@@ -82,26 +108,30 @@
 
     if (calories > 0) {
       if (fat >= 30) {
-        dinnerTitle = "本餐脂肪偏高，下一餐清淡一点";
-        dinnerText = "下一餐可减少油炸、肥肉和浓酱，多选蔬菜、鱼虾或清淡做法。";
+        dinnerTitle = "晚餐：本餐脂肪偏高，下一餐清淡一点";
+        dinnerText = "下一餐减少油炸、肥肉和浓酱，多选蔬菜、鱼虾或清淡做法。";
       }
+
       if (protein < 20) {
-        lunchTitle = "本餐蛋白质偏少，下一餐补一补";
+        lunchTitle = "午餐：本餐蛋白质偏少，下一餐补一补";
         lunchText = "下一餐可增加鸡蛋、牛奶、鱼虾、瘦肉或豆制品。";
       } else if (protein >= 30) {
-        lunchTitle = "本餐蛋白质比较充足";
-        lunchText = "下一餐可以把重点放在蔬菜和适量主食上，让搭配更均衡。";
+        lunchTitle = "午餐：本餐蛋白质已经比较充足";
+        lunchText = "下一餐可把重点放在蔬菜和适量主食上，让搭配更均衡。";
       }
+
       if (carbs >= 80 && p.goal === "loss") {
-        dinnerTitle = "本餐碳水较多，下一餐减少精制主食";
-        dinnerText = "如果目标是科学减脂，下一餐可少一些米饭、面条和甜饮，多一些蔬菜和蛋白质。";
+        dinnerTitle = "晚餐：本餐碳水较多，下一餐少一点主食";
+        dinnerText = "下一餐可少一些米饭、面条和甜饮，多一些蔬菜和蛋白质。";
       }
+
       if (/蔬菜|沙拉/.test(category)) {
-        lunchTitle = "蔬菜比较丰富，再搭配蛋白质更完整";
-        lunchText = "可以增加鸡蛋、豆制品、鱼虾或瘦肉，让这一餐更均衡。";
+        lunchTitle = "午餐：蔬菜丰富，再补一点蛋白";
+        lunchText = "可增加鸡蛋、豆制品、鱼虾或瘦肉，让这一餐更完整。";
       }
+
       if (/饮品|咖啡|奶茶/.test(category)) {
-        dinnerTitle = "饮品不能代替正餐";
+        dinnerTitle = "晚餐：饮品不能代替正餐";
         dinnerText = "注意饮品中的糖和能量，正餐仍要保证主食、蛋白质和蔬菜。";
       }
     }
@@ -117,20 +147,56 @@
       p.goal === "loss" ? "科学减脂" :
       p.goal === "gain" ? "增肌塑形" : "保持健康";
 
-    $("stepOverview").textContent = Math.max(0, Math.round(p.steps)).toLocaleString("zh-CN");
+    const mealLabel = latestMeal && latestMeal.foodCategory
+      ? `，并结合本餐“${latestMeal.foodCategory}”`
+      : "";
+
     $("recommendReason").textContent =
-      reasonText || `已根据“${goalLabel}”目标、今日 ${Math.max(0, Math.round(p.steps)).toLocaleString("zh-CN")} 步和当前身体信息更新建议。`;
+      reasonText || `推荐依据：${goalLabel}、今日 ${Math.max(0, Math.round(p.steps)).toLocaleString("zh-CN")} 步${mealLabel}。`;
+  }
+
+  function refreshHealthAndRecommendations(reasonText) {
+    const gender = $("gender").value;
+    const age = +$("age").value;
+    const height = +$("height").value;
+    const weight = +$("weight").value;
+    const factor = +$("activity").value;
+    const goal = $("goal").value;
+    const steps = Math.max(0, +$("steps").value || 0);
+
+    const bmr = gender === "male"
+      ? 10 * weight + 6.25 * height - 5 * age + 5
+      : 10 * weight + 6.25 * height - 5 * age - 161;
+
+    const calories = Math.max(
+      1200,
+      Math.round((bmr * factor + (goal === "loss" ? -300 : goal === "gain" ? 250 : 0)) / 10) * 10
+    );
+
+    $("calorieGoal").textContent = calories;
+    $("proteinGoal").textContent = Math.round(weight * (goal === "gain" ? 1.8 : 1.5));
+    $("healthScore").textContent = Math.min(
+      95,
+      Math.max(70, Math.round(88 - Math.abs(weight / ((height / 100) ** 2) - 22)))
+    );
+    $("stepOverview").textContent = Math.round(steps).toLocaleString("zh-CN");
+
+    updatePersonalizedRecommendations(
+      reasonText || `已根据身体信息、健康目标和今日 ${Math.round(steps).toLocaleString("zh-CN")} 步实时更新推荐。`
+    );
   }
 
   $("profileForm").addEventListener("submit", (event) => {
     event.preventDefault();
-    const gender = $("gender").value, age = +$("age").value, height = +$("height").value, weight = +$("weight").value;
-    const bmr = gender === "male" ? 10 * weight + 6.25 * height - 5 * age + 5 : 10 * weight + 6.25 * height - 5 * age - 161;
-    const factor = +$("activity").value, goal = $("goal").value;
-    const calories = Math.max(1200, Math.round((bmr * factor + (goal === "loss" ? -300 : goal === "gain" ? 250 : 0)) / 10) * 10);
-    $("calorieGoal").textContent = calories; $("proteinGoal").textContent = Math.round(weight * (goal === "gain" ? 1.8 : 1.5));
-    $("healthScore").textContent = Math.min(95, Math.max(70, Math.round(88 - Math.abs(weight / ((height / 100) ** 2) - 22))));
-    updatePersonalizedRecommendations(`已根据身体信息、健康目标和今日 ${Math.max(0, +$("steps").value).toLocaleString("zh-CN")} 步更新推荐。`);
+    refreshHealthAndRecommendations("已根据你刚刚填写的信息重新生成个性化推荐。");
+  });
+
+  // 输入内容一改变，推荐立即更新，不必等待点击按钮。
+  ["gender", "age", "height", "weight", "goal", "activity", "steps"].forEach((id) => {
+    const el = $(id);
+    ["input", "change"].forEach((eventName) => {
+      el.addEventListener(eventName, () => refreshHealthAndRecommendations());
+    });
   });
 
   function selectFile(file) {
@@ -197,7 +263,7 @@
     };
     updatePersonalizedRecommendations("已结合本次食物识别结果自动更新个性化推荐。");
   }
-  updatePersonalizedRecommendations();
+  refreshHealthAndRecommendations();
 
   $("recognizeButton").addEventListener("click", async () => {
     if (!selectedFile) return;

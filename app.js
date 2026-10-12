@@ -195,8 +195,18 @@
 
   $("profileForm").addEventListener("submit", (event) => {
     event.preventDefault();
-    refreshHealthAndRecommendations("已根据你刚刚填写的信息重新生成个性化推荐。");
+    refreshHealthAndRecommendations("已根据你刚刚填写的身体信息和健康目标重新生成个性化推荐。");
   });
+
+  ["gender", "age", "height", "weight", "goal", "activity", "steps"].forEach((id) => {
+    const el = $(id);
+    ["input", "change"].forEach((eventName) => {
+      el.addEventListener(eventName, () => {
+        $("recommendReason").textContent = "身体与目标已修改，请点击“更新健康建议”应用新的推荐。";
+      });
+    });
+  });
+
 
   // 输入内容一改变，推荐立即更新，不必等待点击按钮。
   ["gender", "age", "height", "weight", "goal", "activity", "steps"].forEach((id) => {

@@ -33,74 +33,88 @@
     const n = meal.nutrition || {};
     const category = meal.foodCategory || "";
 
-    // 先根据健康目标生成三餐基础方案
-    let breakfastTitle, breakfastText, lunchTitle, lunchText, dinnerTitle, dinnerText;
+    const calorieGoal = Number($("calorieGoal").textContent) || 0;
+    const proteinGoal = Number($("proteinGoal").textContent) || 0;
 
+    let breakfastTitle = "早餐：均衡开启一天";
+    let breakfastText = `根据当前身体信息，今日建议热量约 ${calorieGoal} kcal，早餐可选择蛋类或奶类，搭配主食和水果。`;
+
+    let lunchTitle = "午餐：主食、蛋白和蔬菜都要有";
+    let lunchText = `今日蛋白质目标约 ${proteinGoal} g，午餐建议搭配鱼虾、禽肉或豆制品，并保证足够蔬菜。`;
+
+    let dinnerTitle = "晚餐：清淡但不节食";
+    let dinnerText = "晚餐减少重油酱汁，保留适量主食和优质蛋白。";
+
+    // 年龄：儿童/青少年强调成长与均衡，不使用成人减重式表述。
+    if (p.age <= 17) {
+      breakfastTitle = "早餐：成长阶段更要吃好";
+      breakfastText = `当前年龄 ${p.age} 岁，早餐要有主食、蛋白质和水果或蔬菜，不能只靠零食或饮料。`;
+      lunchText += " 成长阶段更要注意食物种类丰富，不建议随意节食。";
+    } else if (p.age >= 60) {
+      breakfastText += " 可优先选择容易消化的食物，并保证蛋白质摄入。";
+      dinnerText += " 晚餐不宜过晚、过量。";
+    }
+
+    // 健康目标
     if (p.goal === "loss") {
-      breakfastTitle = "早餐：控糖但要吃够";
-      breakfastText = "优先选择鸡蛋、无糖奶或豆浆，搭配适量全麦主食和水果。";
+      breakfastTitle = p.age <= 17 ? "早餐：均衡饮食，不随意节食" : "早餐：控糖但要吃够";
+      breakfastText = p.age <= 17
+        ? "成长阶段不建议简单少吃，应减少高糖饮料和油炸零食，同时保证主食、蛋白质和蔬果。"
+        : "优先选择鸡蛋、无糖奶或豆浆，搭配适量全麦主食和水果。";
 
       lunchTitle = "午餐：多蔬菜，主食适量";
-      lunchText = "建议一份优质蛋白、两份蔬菜和适量主食，少选油炸和浓酱。";
+      lunchText = "建议有优质蛋白、蔬菜和适量主食，少选油炸和浓酱。";
 
       dinnerTitle = "晚餐：清淡不过量";
       dinnerText = "减少高脂、高糖食物，适量主食，增加蔬菜和优质蛋白。";
 
     } else if (p.goal === "gain") {
       breakfastTitle = "早餐：补充蛋白和能量";
-      breakfastText = "增加鸡蛋、牛奶、酸奶或豆制品，并搭配主食补充能量。";
+      breakfastText = `今日蛋白质目标约 ${proteinGoal} g，早餐可增加鸡蛋、牛奶、酸奶或豆制品，并搭配主食。`;
 
       lunchTitle = "午餐：保证优质蛋白";
       lunchText = "选择鱼、虾、鸡肉、牛肉或豆制品，搭配主食和蔬菜。";
 
       dinnerTitle = "晚餐：帮助运动后恢复";
       dinnerText = "运动后适量补充蛋白质和碳水，避免只吃肉不吃主食。";
-
-    } else {
-      breakfastTitle = "早餐：均衡开启一天";
-      breakfastText = "选择蛋类或奶类，搭配全麦主食和水果。";
-
-      lunchTitle = "午餐：主食、蛋白和蔬菜都要有";
-      lunchText = "搭配鱼虾、禽肉或豆制品，并保证足够蔬菜。";
-
-      dinnerTitle = "晚餐：清淡但不节食";
-      dinnerText = "减少重油酱汁，保留适量主食和优质蛋白。";
     }
 
-    // 再根据今日步数，让三餐都发生明显变化
+    // 身高体重：不做疾病判断，只根据输入值说明目标已经重新计算。
+    breakfastText += ` 系统已按 ${p.height} cm、${p.weight} kg 的输入重新计算今日营养参考。`;
+
+    // 活动水平
+    if (p.activity <= 1.2) {
+      lunchTitle = "午餐：活动量偏少，注意份量";
+      lunchText = "今天活动水平偏低，午餐避免大份油炸食物和高糖饮料，多选蔬菜和优质蛋白。";
+    } else if (p.activity >= 1.55) {
+      lunchTitle = "午餐：活动量较大，及时补充能量";
+      lunchText = "今天活动水平较高，午餐可以保证足够主食和优质蛋白，并注意补水。";
+    }
+
+    // 今日步数，让午餐和晚餐都明显变化
     if (p.steps < 5000) {
-      breakfastText += " 今天步数较少，早餐主食不需要过量。";
-      lunchTitle = "午餐：轻一点，多走一点";
-      lunchText = "今天活动量偏少，午餐可减少油炸和大份主食，多吃蔬菜。";
+      lunchTitle = "午餐：今天走得少，吃得更轻一些";
+      lunchText = "今日步数不足5000步，午餐减少油炸和大份主食，多吃蔬菜。";
       dinnerTitle = "晚餐：少油少糖，饭后走一走";
-      dinnerText = "今天步数较少，晚餐建议清淡一些，饭后可以散步增加活动量。";
-
+      dinnerText = "今天步数较少，晚餐建议清淡，饭后可散步增加活动量。";
     } else if (p.steps < 8000) {
-      breakfastText += " 今天活动量一般，保持规律饮食即可。";
-      lunchTitle = "午餐：均衡搭配最重要";
-      lunchText = "今天活动量中等，午餐保持主食、蛋白质和蔬菜的均衡搭配。";
+      lunchTitle = "午餐：活动量一般，保持均衡";
+      lunchText = "今日步数在5000–7999步，午餐保持主食、蛋白质和蔬菜均衡搭配。";
       dinnerTitle = "晚餐：适量主食，避免过饱";
-      dinnerText = "活动量一般，晚餐吃到七八分饱即可。";
-
+      dinnerText = "今天活动量一般，晚餐吃到七八分饱即可。";
     } else if (p.steps < 12000) {
-      breakfastText += " 今天步数不错，可以正常补充主食。";
-      lunchTitle = "午餐：活动量不错，注意补充能量";
-      lunchText = "今天步数较多，午餐可保证足够主食和优质蛋白，继续保持。";
+      lunchTitle = "午餐：步数不错，补充优质蛋白";
+      lunchText = "今日步数在8000–11999步，午餐可保证主食和优质蛋白，继续保持活动。";
       dinnerTitle = "晚餐：补充蛋白，保持清淡";
-      dinnerText = "今天活动量较好，晚餐可适量补充蛋白质，同时保持蔬菜摄入。";
-
+      dinnerText = "今天活动量较好，晚餐可适量补充蛋白质，同时保证蔬菜摄入。";
     } else {
-      breakfastTitle = "早餐：高活动量需要足够能量";
-      breakfastText = "今天步数很多，早餐可适当增加主食和蛋白质，并注意补水。";
-
       lunchTitle = "午餐：高活动量，主食和蛋白都要够";
-      lunchText = "今天活动量较大，午餐可适当增加主食、鱼虾、肉类或豆制品。";
-
+      lunchText = "今日步数达到12000步以上，午餐可适当增加主食、鱼虾、肉类或豆制品。";
       dinnerTitle = "晚餐：帮助恢复，别忘了补水";
-      dinnerText = "高活动量后可适量补充蛋白质和碳水，同时注意水分和蔬菜。";
+      dinnerText = "今天活动量较大，晚餐可适量补充蛋白质和碳水，并注意水分和蔬菜。";
     }
 
-    // 最后根据本餐识别结果覆盖最相关的下一餐建议
+    // 食物识别结果继续影响下一餐建议
     const protein = Number(n.protein) || 0;
     const carbs = Number(n.carbs) || 0;
     const fat = Number(n.fat) || 0;
@@ -120,7 +134,7 @@
         lunchText = "下一餐可把重点放在蔬菜和适量主食上，让搭配更均衡。";
       }
 
-      if (carbs >= 80 && p.goal === "loss") {
+      if (carbs >= 80 && p.goal === "loss" && p.age > 17) {
         dinnerTitle = "晚餐：本餐碳水较多，下一餐少一点主食";
         dinnerText = "下一餐可少一些米饭、面条和甜饮，多一些蔬菜和蛋白质。";
       }
@@ -147,12 +161,13 @@
       p.goal === "loss" ? "科学减脂" :
       p.goal === "gain" ? "增肌塑形" : "保持健康";
 
+    const genderLabel = p.gender === "male" ? "男" : "女";
     const mealLabel = latestMeal && latestMeal.foodCategory
-      ? `，并结合本餐“${latestMeal.foodCategory}”`
+      ? `；本餐：${latestMeal.foodCategory}`
       : "";
 
     $("recommendReason").textContent =
-      reasonText || `推荐依据：${goalLabel}、今日 ${Math.max(0, Math.round(p.steps)).toLocaleString("zh-CN")} 步${mealLabel}。`;
+      reasonText || `已实时更新：${genderLabel}，${p.age}岁，${p.height}cm，${p.weight}kg，${goalLabel}，今日${Math.round(p.steps).toLocaleString("zh-CN")}步${mealLabel}。`;
   }
 
   function refreshHealthAndRecommendations(reasonText) {
@@ -194,7 +209,7 @@
   // 输入内容一改变，推荐立即更新，不必等待点击按钮。
   ["gender", "age", "height", "weight", "goal", "activity", "steps"].forEach((id) => {
     const el = $(id);
-    ["input", "change"].forEach((eventName) => {
+    ["input", "change", "blur"].forEach((eventName) => {
       el.addEventListener(eventName, () => refreshHealthAndRecommendations());
     });
   });

@@ -208,14 +208,6 @@
   });
 
 
-  // 输入内容一改变，推荐立即更新，不必等待点击按钮。
-  ["gender", "age", "height", "weight", "goal", "activity", "steps"].forEach((id) => {
-    const el = $(id);
-    ["input", "change", "blur"].forEach((eventName) => {
-      el.addEventListener(eventName, () => refreshHealthAndRecommendations());
-    });
-  });
-
   function selectFile(file) {
     if (!file) return;
     if (!file.type.startsWith("image/")) return setStatus("请选择图片文件。", true);

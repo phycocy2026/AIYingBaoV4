@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#167d5a">
-  <title>AI智营宝 V3.2.5</title>
+  <title>AI智营宝 V4.0</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -29,7 +29,7 @@
           <article class="metric hero-metric"><div class="score-ring"><span id="healthScore">86</span><small>健康评分</small></div><div><b>饮食结构均衡</b><p>继续保持蔬菜与优质蛋白摄入。</p></div></article>
           <article class="metric"><span class="metric-icon orange">火</span><p>建议热量</p><strong id="calorieGoal">1850</strong><small>kcal / 天</small></article>
           <article class="metric"><span class="metric-icon blue">蛋</span><p>蛋白目标</p><strong id="proteinGoal">95</strong><small>g / 天</small></article>
-          <article class="metric"><span class="metric-icon green">步</span><p>今日步数</p><strong>7,680</strong><small>目标 10,000</small></article>
+          <article class="metric"><span class="metric-icon green">步</span><p>今日步数</p><strong id="stepOverview">7,680</strong><small>目标 10,000</small></article>
         </div>
       </section>
 
@@ -43,6 +43,7 @@
             <label>体重（kg）<input id="weight" type="number" min="30" max="250" step="0.1" value="58"></label>
             <label>健康目标<select id="goal"><option value="maintain">保持健康</option><option value="loss">科学减脂</option><option value="gain">增肌塑形</option></select></label>
             <label>活动水平<select id="activity"><option value="1.2">久坐</option><option value="1.375" selected>轻度活动</option><option value="1.55">中度活动</option><option value="1.725">高强度活动</option></select></label>
+            <label>今日步数<input id="steps" type="number" min="0" max="50000" step="100" value="7680"></label>
             <button class="primary" type="submit">更新健康建议</button>
           </form>
         </section>
@@ -67,7 +68,12 @@
 
       <section id="recommendations" class="section">
         <div class="section-title"><div><h2>个性化推荐</h2><p>结合今日目标，为你安排更轻松的选择</p></div></div>
-        <div class="recommend-grid"><article class="recommend warm"><span>早餐</span><h3>高蛋白开启元气</h3><p>鸡蛋、无糖酸奶与全麦主食，饱腹更持久。</p></article><article class="recommend green-bg"><span>午餐</span><h3>一拳主食，两掌蔬菜</h3><p>搭配鱼虾或禽肉，兼顾蛋白质与膳食纤维。</p></article><article class="recommend purple"><span>晚餐</span><h3>清淡但不节食</h3><p>减少重油酱汁，保留适量主食与优质蛋白。</p></article></div>
+        <div class="recommend-grid">
+          <article class="recommend warm"><span>早餐</span><h3 id="breakfastTitle">高蛋白开启元气</h3><p id="breakfastText">鸡蛋、无糖酸奶与全麦主食，饱腹更持久。</p></article>
+          <article class="recommend green-bg"><span>午餐</span><h3 id="lunchTitle">一拳主食，两掌蔬菜</h3><p id="lunchText">搭配鱼虾或禽肉，兼顾蛋白质与膳食纤维。</p></article>
+          <article class="recommend purple"><span>晚餐</span><h3 id="dinnerTitle">清淡但不节食</h3><p id="dinnerText">减少重油酱汁，保留适量主食与优质蛋白。</p></article>
+        </div>
+        <p id="recommendReason" class="notice">建议会根据身体信息、健康目标和本次识别结果自动更新。</p>
       </section>
 
       <div class="two-column lower">

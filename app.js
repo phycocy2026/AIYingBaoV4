@@ -7,11 +7,120 @@
   const API = window.AIYINGBAO_API_URL || localStorage.getItem("aiyingbaoApiUrl") || DEFAULT_API;
   const $ = (id) => document.getElementById(id);
   let selectedFile = null;
+  let latestMeal = null;
 
   $("todayText").textContent = new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "long" }).format(new Date());
   document.querySelectorAll(".nav a").forEach((link) => link.addEventListener("click", () => {
     document.querySelectorAll(".nav a").forEach((item) => item.classList.remove("active")); link.classList.add("active");
   }));
+
+
+  function getProfileState() {
+    return {
+      gender: $("gender").value,
+      age: +$("age").value,
+      height: +$("height").value,
+      weight: +$("weight").value,
+      goal: $("goal").value,
+      activity: +$("activity").value,
+      steps: +$("steps").value
+    };
+  }
+
+  function updatePersonalizedRecommendations(reasonText) {
+    const p = getProfileState();
+    const meal = latestMeal || {};
+    const n = meal.nutrition || {};
+    const category = meal.foodCategory || "";
+
+    let breakfastTitle = "均衡早餐，给一天开个好头";
+    let breakfastText = "选择鸡蛋或牛奶等蛋白质食物，搭配全麦主食和水果。";
+    let lunchTitle = "主食、蛋白质和蔬菜都要有";
+    let lunchText = "午餐尽量做到有主食、有优质蛋白，也有足够蔬菜。";
+    let dinnerTitle = "晚餐清淡一些，更容易保持平衡";
+    let dinnerText = "少吃油炸和重口味食物，保留适量主食和优质蛋白。";
+
+    // 根据健康目标调整
+    if (p.goal === "loss") {
+      breakfastTitle = "控糖减脂：早餐也要吃够";
+      breakfastText = "优先选择鸡蛋、无糖奶或豆浆，主食适量，少选高糖饮料和甜点。";
+      lunchTitle = "控糖减脂：先保证蛋白质和蔬菜";
+      lunchText = "减少油炸和精制主食，增加蔬菜、鱼虾、禽肉或豆制品。";
+      dinnerTitle = "控糖减脂：晚餐不过量";
+      dinnerText = "晚餐减少高脂和高糖食物，主食适量，多搭配蔬菜。";
+    } else if (p.goal === "gain") {
+      breakfastTitle = "增肌塑形：早餐补足蛋白";
+      breakfastText = "早餐可增加鸡蛋、牛奶、酸奶或豆制品，并搭配主食补充能量。";
+      lunchTitle = "增肌塑形：午餐保证蛋白质";
+      lunchText = "选择鱼、虾、鸡肉、牛肉或豆制品，搭配主食和蔬菜。";
+      dinnerTitle = "增肌塑形：运动后注意恢复";
+      dinnerText = "运动后适量补充蛋白质和碳水，避免只吃肉不吃主食。";
+    }
+
+    // 根据活动水平调整
+    if (p.activity >= 1.55) {
+      breakfastText += " 今天活动量较大，可以适当增加主食。";
+    } else if (p.activity <= 1.2) {
+      dinnerText += " 今天活动量较少，注意控制额外零食和含糖饮料。";
+    }
+
+    // 根据今天实际步数进一步调整
+    if (p.steps >= 12000) {
+      breakfastText += " 今天步数较多，注意补充水分和适量能量。";
+      lunchText += " 活动量较大时，午餐可保证足够主食和优质蛋白。";
+    } else if (p.steps >= 8000) {
+      lunchText += " 今天步数不错，继续保持日常活动。";
+    } else if (p.steps < 5000) {
+      dinnerText += " 今天步数较少，可以增加散步等轻度活动。";
+    }
+
+    // 根据识别到的这餐营养动态调整
+    const protein = Number(n.protein) || 0;
+    const carbs = Number(n.carbs) || 0;
+    const fat = Number(n.fat) || 0;
+    const calories = Number(n.calories) || 0;
+
+    if (calories > 0) {
+      if (fat >= 30) {
+        dinnerTitle = "本餐脂肪偏高，下一餐清淡一点";
+        dinnerText = "下一餐可减少油炸、肥肉和浓酱，多选蔬菜、鱼虾或清淡做法。";
+      }
+      if (protein < 20) {
+        lunchTitle = "本餐蛋白质偏少，下一餐补一补";
+        lunchText = "下一餐可增加鸡蛋、牛奶、鱼虾、瘦肉或豆制品。";
+      } else if (protein >= 30) {
+        lunchTitle = "本餐蛋白质比较充足";
+        lunchText = "下一餐可以把重点放在蔬菜和适量主食上，让搭配更均衡。";
+      }
+      if (carbs >= 80 && p.goal === "loss") {
+        dinnerTitle = "本餐碳水较多，下一餐减少精制主食";
+        dinnerText = "如果目标是科学减脂，下一餐可少一些米饭、面条和甜饮，多一些蔬菜和蛋白质。";
+      }
+      if (/蔬菜|沙拉/.test(category)) {
+        lunchTitle = "蔬菜比较丰富，再搭配蛋白质更完整";
+        lunchText = "可以增加鸡蛋、豆制品、鱼虾或瘦肉，让这一餐更均衡。";
+      }
+      if (/饮品|咖啡|奶茶/.test(category)) {
+        dinnerTitle = "饮品不能代替正餐";
+        dinnerText = "注意饮品中的糖和能量，正餐仍要保证主食、蛋白质和蔬菜。";
+      }
+    }
+
+    $("breakfastTitle").textContent = breakfastTitle;
+    $("breakfastText").textContent = breakfastText;
+    $("lunchTitle").textContent = lunchTitle;
+    $("lunchText").textContent = lunchText;
+    $("dinnerTitle").textContent = dinnerTitle;
+    $("dinnerText").textContent = dinnerText;
+
+    const goalLabel =
+      p.goal === "loss" ? "科学减脂" :
+      p.goal === "gain" ? "增肌塑形" : "保持健康";
+
+    $("stepOverview").textContent = Math.max(0, Math.round(p.steps)).toLocaleString("zh-CN");
+    $("recommendReason").textContent =
+      reasonText || `已根据“${goalLabel}”目标、今日 ${Math.max(0, Math.round(p.steps)).toLocaleString("zh-CN")} 步和当前身体信息更新建议。`;
+  }
 
   $("profileForm").addEventListener("submit", (event) => {
     event.preventDefault();
@@ -21,6 +130,7 @@
     const calories = Math.max(1200, Math.round((bmr * factor + (goal === "loss" ? -300 : goal === "gain" ? 250 : 0)) / 10) * 10);
     $("calorieGoal").textContent = calories; $("proteinGoal").textContent = Math.round(weight * (goal === "gain" ? 1.8 : 1.5));
     $("healthScore").textContent = Math.min(95, Math.max(70, Math.round(88 - Math.abs(weight / ((height / 100) ** 2) - 22))));
+    updatePersonalizedRecommendations(`已根据身体信息、健康目标和今日 ${Math.max(0, +$("steps").value).toLocaleString("zh-CN")} 步更新推荐。`);
   });
 
   function selectFile(file) {
@@ -76,7 +186,19 @@
     const items = Array.isArray(data.top5) ? data.top5.slice(0, 5) : [];
     $("top5").innerHTML = (items.length ? items : [{ name: data.foodCategory, score: data.confidence }]).map((item) => { const p = scorePercent(item.score); return `<li><div><span>${escapeHtml(labels.translateTop5(item.name))}</span><b>${p.toFixed(1)}%</b></div><i><em style="width:${p}%"></em></i></li>`; }).join("");
     $("resultPanel").hidden = false;
+    latestMeal = {
+      foodCategory: data.foodCategory || "",
+      nutrition: {
+        calories: number(n.calories, 0),
+        protein: number(n.protein, 0),
+        carbs: number(n.carbs, 0),
+        fat: number(n.fat, 0)
+      }
+    };
+    updatePersonalizedRecommendations("已结合本次食物识别结果自动更新个性化推荐。");
   }
+  updatePersonalizedRecommendations();
+
   $("recognizeButton").addEventListener("click", async () => {
     if (!selectedFile) return;
     const button = $("recognizeButton"); button.disabled = true; button.textContent = "AI识别中…"; setStatus("正在压缩照片并连接识别服务，首次唤醒可能需要约一分钟。");
